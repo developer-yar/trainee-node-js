@@ -1,0 +1,43 @@
+version: '3.9'
+services:
+  server:
+    container_name: nestjs-app
+    build: .
+    ports:
+      - '3000:${APPLICATION_PORT}'
+    environment:
+      - APPLICATION_PORT=${APPLICATION_PORT}
+      - DATABASE_TYPE=${DATABASE_TYPE}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - DATABASE_USERNAME=${DATABASE_USERNAME}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+    volumes:
+      - ./public:/app/public
+    depends_on:
+      - db
+  dbms:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+    ports:
+      - '5050:80'
+    depends_on:
+      - db
+  db:
+    container_name: postgresql
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    ports:
+      - '5433:${DATABASE_PORT}'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata: {}
